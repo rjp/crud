@@ -95,25 +95,23 @@ func (db *DB) Create(record interface{}) error {
 	return Create(db.Exec, record)
 }
 
+func (db *DB) CreateAndGetResult(record interface{}) (stdsql.Result, error) {
+	return CreateAndGetResult(db.Exec, record)
+}
+
+func (db *DB) CreateAndRead(record interface{}) error {
+	return CreateAndRead(db.Exec, db.Query, record)
+}
+
 func (db *DB) Read(scanTo interface{}, params ...interface{}) error {
 	return Read(db.Query, scanTo, params)
 }
 
 func (db *DB) Update(record interface{}) error {
-	_, err := Update(db.Exec, record)
-	return err
-}
-
-func (db *DB) MustUpdate(record interface{}) error {
 	return MustUpdate(db.Exec, record)
 }
 
 func (db *DB) Delete(record interface{}) error {
-	_, err := Delete(db.Exec, record)
-	return err
-}
-
-func (db *DB) MustDelete(record interface{}) error {
 	return MustDelete(db.Exec, record)
 }
 

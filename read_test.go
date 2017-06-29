@@ -84,6 +84,14 @@ func TestReadingSingleRow(t *testing.T) {
 	assert.Equal(t, azer.Bio, "Engineer")
 	assert.Equal(t, azer.Email, "azer@roadbeats.com")
 
+	var az UserProfile
+	err = DB.Read(&az, "SELECT * FROM user_profile WHERE name = ?", "Azer")
+	assert.Nil(t, err)
+	assert.Equal(t, az.Id, 2)
+	assert.Equal(t, az.Name, "Azer")
+	assert.Equal(t, az.Bio, "Engineer")
+	assert.Equal(t, az.Email, "azer@roadbeats.com")
+
 	no := UserProfile{}
 	err = DB.Read(&no, "SELECT * FROM user_profile WHERE name = ?", "Not matching")
 	assert.NotNil(t, err)
@@ -137,6 +145,34 @@ func TestScanningToCustomValues(t *testing.T) {
 	err = DB.Read(&count, "SELECT COUNT(id) FROM user_profile")
 	assert.Nil(t, err)
 	assert.Equal(t, count, 3)
+
+	DB.DropTables(UserProfile{})
+}
+
+func TestScanningToNullTypes(t *testing.T) {
+	assert.Nil(t, CreateUserProfiles())
+
+	nova := UserProfileNull{}
+	err := DB.Read(&nova, "SELECT * FROM user_profile WHERE name = ?", "Nova")
+	assert.Nil(t, err)
+
+	assert.Equal(t, nova.Id.Int64, int64(1))
+	assert.Equal(t, nova.Name.String, "Nova")
+	assert.Equal(t, nova.Bio.String, "Photographer")
+	assert.Equal(t, nova.Email.String, "nova@roadbeats.com")
+
+	DB.DropTables(UserProfile{})
+}
+
+func TestUnexistingFields(t *testing.T) {
+	assert.Nil(t, CreateUserProfiles())
+
+	nova := UserProfile{}
+	err := DB.Read(&nova, "SELECT u.*, COUNT(u.id) as ucount FROM user_profile u WHERE name=?", "Nova")
+	assert.Nil(t, err)
+	assert.Equal(t, nova.Name, "Nova")
+	assert.Equal(t, nova.Bio, "Photographer")
+	assert.Equal(t, nova.Email, "nova@roadbeats.com")
 
 	DB.DropTables(UserProfile{})
 }

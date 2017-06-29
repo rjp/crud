@@ -2,7 +2,6 @@ package crud
 
 import (
 	"database/sql"
-	"errors"
 	"github.com/rjp/crud/meta"
 	"reflect"
 )

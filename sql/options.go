@@ -64,6 +64,11 @@ func NewOptions(input string) (*Options, error) {
 			continue
 		}
 
+        if part[0:9] == "conflict:" {
+            options.Conflict = part[9:]
+            continue
+        }
+
 		return nil, errors.New(fmt.Sprintf("Unrecognized SQL option: %s", part))
 	}
 
@@ -82,6 +87,7 @@ type Options struct {
 	IsUnsigned         bool
 	IsRequired         bool
 	Ignore             bool
+    Conflict           string
 }
 
 func (options *Options) ReadAttr(input string, names ...string) (string, bool) {

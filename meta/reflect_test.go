@@ -2,7 +2,7 @@ package meta_test
 
 import (
 	"fmt"
-	"github.com/azer/crud/meta"
+	"github.com/rjp/crud/meta"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

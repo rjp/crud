@@ -1,7 +1,7 @@
 package crud_test
 
 import (
-	"github.com/azer/crud"
+	"github.com/rjp/crud"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/assert"
 	"os"

@@ -2,17 +2,18 @@ package sql
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 )
 
-func NewTableQuery(name string, fields []*Options, ifNotExists bool) string {
+func NewTableQuery(st interface{}, name string, fields []*Options, ifNotExists bool) string {
 	ifNotExistsExt := ""
 	if ifNotExists {
 		ifNotExistsExt = " IF NOT EXISTS"
 	}
 
-	return fmt.Sprintf("CREATE TABLE%s `%s` (\n%s%s\n)%s;",
-		ifNotExistsExt, name, NewFieldQueries(fields), NewPrimaryKeyQuery(fields), NewTableConfigQuery(fields))
+    return fmt.Sprintf("CREATE TABLE%s `%s` (\n%s%s\n)%s;",
+		ifNotExistsExt, name, NewFieldQueries(fields), NewPrimaryKeyQuery(st, fields), NewTableConfigQuery(fields))
 }
 
 func NewFieldQueries(fields []*Options) string {
@@ -67,7 +68,22 @@ func NewFieldQuery(field *Options) string {
 	return fmt.Sprintf("  `%s` %s%s", field.Name, field.Type, query)
 }
 
-func NewPrimaryKeyQuery(fields []*Options) string {
+func CallHook(st interface{}, method string, arg string) string {
+    v := reflect.ValueOf(st)
+    m := v.MethodByName(method)
+    if m.IsValid() {
+        args := []reflect.Value{reflect.ValueOf(arg)}
+        retVal := m.Call(args)
+        fish := retVal[0]
+        if fish.String() != "" {
+            arg = fish.String()
+        }
+        fmt.Println("CallHook()", arg)
+    }
+	return arg
+}
+
+func NewPrimaryKeyQuery(st interface{}, fields []*Options) string {
 	keys := []string{}
 
 	for _, f := range fields {
@@ -80,7 +96,9 @@ func NewPrimaryKeyQuery(fields []*Options) string {
 		return ""
 	}
 
-	return fmt.Sprintf(",\n  PRIMARY KEY (`%s`)", strings.Join(keys, "`, `"))
+    sql := fmt.Sprintf(",\n  PRIMARY KEY (`%s`)", strings.Join(keys, "`, `"))
+	sql = CallHook(st, "PrimaryKeyHook", sql)
+	return sql
 }
 
 func NewTableConfigQuery(fields []*Options) string {
@@ -108,7 +126,7 @@ func ShowTablesLikeQuery(name string) string {
 	return fmt.Sprintf("SHOW TABLES LIKE '%s'", name)
 }
 
-func InsertQuery(tableName string, columnNames []string) string {
+func InsertQuery(st interface{}, tableName string, columnNames []string) string {
 	var questionMarks string
 
 	if len(columnNames) > 0 {
@@ -116,8 +134,10 @@ func InsertQuery(tableName string, columnNames []string) string {
 		questionMarks = questionMarks[:len(questionMarks)-1]
 	}
 
-	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)",
+	sql := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)",
 		tableName, strings.Join(columnNames, ","), questionMarks)
+	sql = CallHook(st, "InsertHook", sql)
+	return sql
 }
 
 func SelectQuery(tableName string, columnNames []string) string {

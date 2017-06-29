@@ -4,7 +4,7 @@ import (
 	stdsql "database/sql"
 	"errors"
 	"fmt"
-	"github.com/azer/crud/sql"
+	"github.com/rjp/crud/sql"
 )
 
 func Update(exec ExecFn, record interface{}) (stdsql.Result, error) {

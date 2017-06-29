@@ -3,8 +3,8 @@ package crud
 import (
 	"errors"
 	"fmt"
-	"github.com/azer/crud/meta"
-	"github.com/azer/crud/sql"
+	"github.com/rjp/crud/meta"
+	"github.com/rjp/crud/sql"
 )
 
 func Read(query QueryFn, scanTo interface{}, allparams []interface{}) error {

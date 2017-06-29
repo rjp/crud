@@ -1,7 +1,7 @@
 package crud
 
 import (
-	"github.com/azer/crud/sql"
+	"github.com/rjp/crud/sql"
 )
 
 func Create(exec ExecFn, record interface{}) error {
@@ -18,6 +18,6 @@ func Create(exec ExecFn, record interface{}) error {
 		values = append(values, v)
 	}
 
-	_, err = exec(sql.InsertQuery(row.SQLTableName, columns), values...)
+	_, err = exec(sql.InsertQuery(record, row.SQLTableName, columns), values...)
 	return err
 }

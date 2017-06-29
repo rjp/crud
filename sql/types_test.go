@@ -1,7 +1,7 @@
 package sql_test
 
 import (
-	"github.com/azer/crud/sql"
+	"github.com/rjp/crud/sql"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

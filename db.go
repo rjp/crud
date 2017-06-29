@@ -2,7 +2,7 @@ package crud
 
 import (
 	stdsql "database/sql"
-	"github.com/azer/crud/sql"
+	"github.com/rjp/crud/sql"
 	"github.com/azer/logger"
 )
 
@@ -37,7 +37,9 @@ func (db *DB) CreateTable(st interface{}, ifexists bool) error {
 		return err
 	}
 
-	_, err = db.Exec(sql.NewTableQuery(t.SQLName, t.SQLOptions(), ifexists))
+    createSQL := sql.NewTableQuery(st, t.SQLName, t.SQLOptions(), ifexists)
+
+	_, err = db.Exec(createSQL)
 	return err
 }
 

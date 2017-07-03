@@ -78,7 +78,7 @@ func CallHook(st interface{}, method string, arg string) string {
         if fish.String() != "" {
             arg = fish.String()
         }
-        fmt.Println("CallHook()", arg)
+     //   fmt.Println("CallHook()", arg)
     }
 	return arg
 }

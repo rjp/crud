@@ -1,7 +1,13 @@
 ## CRUD
 
-A minimalistic relational database library for Go, with simple and familiar interface. [Why?](#why-another-ormish-library-for-go)
+A minimalistic relational database library for Go.
 
+Features:
+* Simple and familiar interface.
+* Well tested, being used [in production for past 2 years](#apps-using-crud).
+* Internal logging with timers, [can be configured for streaming slow queries into Slack](http://azer.bike/journal/monitoring-slow-sql-queries-via-slack#crud).
+
+Manual:
 * [Install](#install)
 * [Initialize](#initialize)
 * [Define](#define)
@@ -157,7 +163,7 @@ Pass your struct's pointer, and a query;
 
 ```go
 user := &User{}
-err := DB.Read(user, "WHERE id = ?", 1) // You can type the full query if preferred.
+err := DB.Read(user, "SELECT * FROM users WHERE id = ?", 1)
 // => SELECT * FROM users WHERE id = 1
 
 fmt.Println(user.Name)
@@ -199,7 +205,7 @@ Updates matching row in database, returns `sql.ErrNoRows` nothing matched.
 
 ```go
 user := &User{}
-err := DB.Read(user, "WHERE id = ?", 1)
+err := DB.Read(user, "SELECT * FROM users WHERE id = ?", 1)
 
 user.Name = "Yolo"
 err := DB.Update(user)
@@ -283,7 +289,6 @@ DATABASE_URL="?" go test ./...
 ## What's Missing?
 
 * **Migration:** We need a sophisticated solution for adding / removing columns when user changes the structs.
-* **Explicit Read Methods:** We can have explicit alternatives of `Read` method for people who prefers.
 * **Relationships:** This was intentionally avoided. Can be considered if there is a clean way to implement it.
 * **Testing Transactions:** Transactions work as expected but there is a sync bug in the test causing failure. It needs to be fixed.
 * **Custom Table Names:** It needs to let people use custom table names.
@@ -291,6 +296,7 @@ DATABASE_URL="?" go test ./...
 * **Hooks:** I'm not sure if this is needed, but worths to consider.
 * **Foreign Keys:** [*](https://dev.mysql.com/doc/refman/5.7/en/create-table-foreign-keys.html)
 * **Query Builder:** Building SQL queries programmatically is useful.
+* **Make UTF-8 Default:** Looks like the default charset is not UTF8. 
 
 ## LICENSE
 

@@ -49,6 +49,10 @@ func (iteration *FieldIteration) SQLOptions() (*sql.Options, error) {
 		return nil, err
 	}
 
+	if result.Ignore {
+		return result, nil
+	}
+
 	if len(result.Name) == 0 {
 		result.Name = snakecase.SnakeCase(iteration.Name())
 	}
@@ -72,4 +76,12 @@ func (iteration *FieldIteration) Value() interface{} {
 
 func (iteration *FieldIteration) Name() string {
 	return iteration.TypeField().Name
+}
+
+func (iteration *FieldIteration) IsEmbeddedStruct() bool {
+	if _, ok := sql.TypeDict[iteration.TypeField().Type.String()]; ok {
+		return false
+	}
+
+	return iteration.ReflectValue.Field(iteration.Index).Kind() == reflect.Struct
 }

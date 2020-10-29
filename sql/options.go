@@ -9,8 +9,9 @@ import (
 
 func NewOptions(input string) (*Options, error) {
 	options := &Options{}
+	input = strings.TrimSpace(input)
 
-	if strings.TrimSpace(input) == "" {
+	if input == "" {
 		return options, nil
 	}
 
@@ -33,6 +34,10 @@ func NewOptions(input string) (*Options, error) {
 		}
 
 		if options.ReadName(part) {
+			continue
+		}
+
+		if options.ReadTableName(part) {
 			continue
 		}
 
@@ -64,10 +69,10 @@ func NewOptions(input string) (*Options, error) {
 			continue
 		}
 
-        if part[0:9] == "conflict:" {
-            options.Conflict = part[9:]
-            continue
-        }
+		if part[0:9] == "conflict:" {
+			options.Conflict = part[9:]
+			continue
+		}
 
 		return nil, errors.New(fmt.Sprintf("Unrecognized SQL option: %s", part))
 	}
@@ -87,7 +92,8 @@ type Options struct {
 	IsUnsigned         bool
 	IsRequired         bool
 	Ignore             bool
-    Conflict           string
+	Conflict           string
+	TableName          string
 }
 
 func (options *Options) ReadAttr(input string, names ...string) (string, bool) {
@@ -154,6 +160,16 @@ func (options *Options) ReadName(input string) bool {
 	}
 
 	options.Name = value
+	return true
+}
+
+func (options *Options) ReadTableName(input string) bool {
+	value, ok := options.ReadAttr(input, "table-name")
+	if !ok {
+		return false
+	}
+
+	options.TableName = value
 	return true
 }
 

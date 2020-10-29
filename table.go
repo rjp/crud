@@ -18,11 +18,11 @@ func NewTable(any interface{}) (*Table, error) {
 
 	SetDefaultPK(fields)
 
-	name := meta.TypeNameOf(any)
+	name, sqlName := ReadTableName(any)
 
 	return &Table{
 		Name:    name,
-		SQLName: snakecase.SnakeCase(name),
+		SQLName: sqlName,
 		Fields:  fields,
 	}, nil
 }
@@ -95,4 +95,66 @@ func (table *Table) SQLUpdateValueSet() []interface{} {
 	}
 
 	return values
+}
+
+// Return struct name and SQL table name
+func ReadTableName(any interface{}) (string, string) {
+	if meta.IsSlice(any) {
+		any = meta.CreateElement(any).Interface()
+	}
+
+	return readTableName(any)
+}
+
+func readTableName(any interface{}) (string, string) {
+	name := meta.TypeNameOf(any)
+	sqlName := snakecase.SnakeCase(name)
+
+	if customTableName, ok := lookupCustomTableName(any); ok {
+		sqlName = customTableName
+	}
+
+	return name, sqlName
+}
+
+func ReadTableColumns(any interface{}) ([]string, error) {
+	if meta.IsSlice(any) {
+		any = meta.CreateElement(any).Interface()
+	}
+
+	fields, err := GetFieldsOf(any)
+	if err != nil {
+		return nil, err
+	}
+
+	columns := []string{}
+
+	for _, col := range fields {
+		columns = append(columns, col.SQL.Name)
+	}
+
+	return columns, nil
+}
+
+func LookupCustomTableName(any interface{}) (string, bool) {
+	if meta.IsSlice(any) {
+		any = meta.CreateElement(any).Interface()
+	}
+
+	return lookupCustomTableName(any)
+}
+
+func lookupCustomTableName(any interface{}) (string, bool) {
+	fields, err := GetFieldsOf(any)
+	if err != nil {
+		return "", false
+	}
+
+	for _, f := range fields {
+		if len(f.SQL.TableName) > 0 {
+			return f.SQL.TableName, true
+		}
+	}
+
+	return "", false
 }

@@ -7,6 +7,7 @@ import (
 	"os"
 	"testing"
 	"time"
+	"fmt"
 )
 
 var DB *crud.DB
@@ -16,7 +17,7 @@ type UserProfile struct {
 	Name     string `json:"name" sql:"required"`
 	Bio      string `json:"bio" sql:"type=text"`
 	Email    string `json:"e-mail" sql:"name=email"`
-	Modified int64  `json:"modified" sql:"name=modified"`
+	Modified int64  `json:"modified" sql:"name=modified_col"`
 }
 
 type UserProfileNull struct {
@@ -27,8 +28,16 @@ type UserProfileNull struct {
 	Modified sql.NullInt64  `json:"modified" sql:"name=modified"`
 }
 
+type Mixed struct {
+	Id        int    `json:"-" sql:"  primary-key auto-increment unsigned name=id table-name=__mixed__ "`
+	UserId    int    `json:"-" valid:"User.Id~Specified user was not found" sql:" name=user_id"`
+	Secret    string `json:"-" valid:"required" sql:" name=secret"`
+	CreatedAt int64  `json:"-" sql:"default=0 name=created_at"`
+	UpdatedAt int64  `json:"-" sql:"default=0 name=updated_at"`
+}
+
 type Post struct {
-	Id        int       `json:"id" sql:"auto-increment primary-key required"`
+	Id        int       `json:"id" sql:"auto-increment primary-key required table-name=renamed_post"`
 	Title     string    `json:"title"`
 	Text      string    `json:"text"`
 	CreatedAt time.Time `json:"created_at"`
@@ -50,7 +59,13 @@ type EmbeddedFoo struct {
 type FooSlice []Foo
 type FooPTRSlice []*Foo
 
+type CustomTableName struct {
+	Foo int `sql:"table-name=yolo"`
+}
+
 func init() {
+	fmt.Println("db:", os.Getenv("DATABASE_URL"))
+	
 	var err error
 	DB, err = crud.Connect("mysql", os.Getenv("DATABASE_URL"))
 	if err != nil {
@@ -79,7 +94,7 @@ func TestCreateTables(t *testing.T) {
 	err := DB.CreateTables(UserProfile{}, Post{})
 	assert.Nil(t, err)
 	assert.True(t, DB.CheckIfTableExists("user_profile"))
-	assert.True(t, DB.CheckIfTableExists("post"))
+	assert.True(t, DB.CheckIfTableExists("renamed_post"))
 }
 
 func TestDropTables(t *testing.T) {

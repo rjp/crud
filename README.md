@@ -3,33 +3,36 @@
 A minimalistic relational database library for Go.
 
 Features:
-* Simple and familiar interface.
-* Well tested, being used [in production for past 2 years](#apps-using-crud).
-* Internal logging with timers, [can be configured for streaming slow queries into Slack](http://azer.bike/journal/monitoring-slow-sql-queries-via-slack#crud).
+* Fast.
+* Well tested.
+* Being used [in production since 2015](#apps-using-crud).
+* Internal logging with timers, [can be configured for streaming slow queries into Slack](https://kodfabrik.com/journal/monitoring-slow-sql-queries-via-slack/#crud).
 
 Manual:
-* [Install](#install)
-* [Initialize](#initialize)
-* [Define](#define)
-  * [Create & Drop Tables](#create--drop-tables)
-  * [Reset Tables](#reset-tables)
-  * [SQL Options](#sql-options)
-* CRUD:
-  * [Create](#create)
-  * [CreateAndRead](#createandread)
-  * [Read](#read)
-    * [Reading a single row](#reading-a-single-row)
-    * [Reading multiple rows](#reading-multiple-rows)
-    * [Scanning to custom values](#scanning-to-custom-values)
-  * [Update](#update)
-  * [Delete](#delete)
-  * [Transactions](#transactions)
-* [Logs](#logs)
-* [Custom Queries](#custom-queries)
-* [Running Tests](#running-tests)
-* [Why another ORMish library for Go?](#why-another-ormish-library-for-go)
-* [Apps Using CRUD](#apps-using-crud)
-* [What's Missing?](#whats-missing)
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
+
+- [Install](#install)
+- [Initialize](#initialize)
+- [Define](#define)
+    - [Reset Tables](#reset-tables)
+    - [SQL Options](#sql-options)
+    - [Create](#create)
+    - [CreateAndRead](#createandread)
+    - [Read](#read)
+        - [Reading multiple rows:](#reading-multiple-rows)
+        - [Scanning to custom values:](#scanning-to-custom-values)
+    - [Update](#update)
+    - [Delete](#delete)
+    - [Transactions](#transactions)
+    - [Logs](#logs)
+    - [Custom Queries](#custom-queries)
+    - [Why another ORMish library for Go?](#why-another-ormish-library-for-go)
+    - [Apps Using CRUD](#apps-using-crud)
+    - [What's Missing?](#whats-missing)
+    - [LICENSE](#license)
+
+<!-- markdown-toc end -->
 
 ## Install
 
@@ -118,6 +121,7 @@ Here is the list of the options that you can pass;
 * `required`
 * `default='?'`
 * `name=?`
+* `table-name=?`
 
 If you'd like a struct field to be ignored by CRUD, choose `-` as options:
 
@@ -291,12 +295,11 @@ DATABASE_URL="?" go test ./...
 * **Migration:** We need a sophisticated solution for adding / removing columns when user changes the structs.
 * **Relationships:** This was intentionally avoided. Can be considered if there is a clean way to implement it.
 * **Testing Transactions:** Transactions work as expected but there is a sync bug in the test causing failure. It needs to be fixed.
-* **Custom Table Names:** It needs to let people use custom table names.
 * **Comments:** I rarely comment my code.
 * **Hooks:** I'm not sure if this is needed, but worths to consider.
 * **Foreign Keys:** [*](https://dev.mysql.com/doc/refman/5.7/en/create-table-foreign-keys.html)
 * **Query Builder:** Building SQL queries programmatically is useful.
-* **Make UTF-8 Default:** Looks like the default charset is not UTF8. 
+* **Make UTF-8 Default:** Looks like the default charset is not UTF8.
 
 ## LICENSE
 

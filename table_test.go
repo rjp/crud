@@ -34,7 +34,7 @@ func TestNewTable(t *testing.T) {
 	assert.Equal(t, table.Fields[3].SQL.Type, "varchar")
 	assert.Equal(t, table.Fields[3].SQL.Length, 255)
 	assert.Equal(t, table.Fields[4].Name, "Modified")
-	assert.Equal(t, table.Fields[4].SQL.Name, "modified")
+	assert.Equal(t, table.Fields[4].SQL.Name, "modified_col")
 	assert.Equal(t, table.Fields[4].SQL.Type, "bigint")
 	assert.Equal(t, table.Fields[4].SQL.Length, 20)
 }
@@ -114,4 +114,82 @@ func TestColumnDictOfSlices(t *testing.T) {
 	assert.Equal(t, columnDict["api_key"], "APIKey")
 	assert.Equal(t, columnDict["yolo"], "YOLO")
 	assert.Equal(t, columnDict["beast"], "Beast")
+}
+
+func TestReadingCustomTableName(t *testing.T) {
+	table, err := crud.NewTable(CustomTableName{})
+	assert.Nil(t, err)
+	assert.Equal(t, table.Name, "CustomTableName")
+	assert.Equal(t, table.SQLName, "yolo")
+}
+
+func TestReadingCustomTableNameFromList(t *testing.T) {
+	table, err := crud.NewTable([]*CustomTableName{})
+	assert.Nil(t, err)
+	assert.Equal(t, table.Name, "CustomTableName")
+	assert.Equal(t, table.SQLName, "yolo")
+}
+
+func TestReadTableName(t *testing.T) {
+	// Pointer to slice
+	name, sqlName := crud.ReadTableName(&[]*CustomTableName{})
+	assert.Equal(t, name, "CustomTableName")
+	assert.Equal(t, sqlName, "yolo")
+
+	// Slice
+	name, sqlName = crud.ReadTableName([]*CustomTableName{})
+	assert.Equal(t, name, "CustomTableName")
+	assert.Equal(t, sqlName, "yolo")
+
+	// Pointer
+	name, sqlName = crud.ReadTableName(&CustomTableName{})
+	assert.Equal(t, name, "CustomTableName")
+	assert.Equal(t, sqlName, "yolo")
+
+	// Struct
+	name, sqlName = crud.ReadTableName(CustomTableName{})
+	assert.Equal(t, name, "CustomTableName")
+	assert.Equal(t, sqlName, "yolo")
+}
+
+func TestReadingTableColumns(t *testing.T) {
+	columns, err := crud.ReadTableColumns(UserProfile{})
+
+	assert.Nil(t, err)
+	assert.Equal(t, columns[0], "id")
+	assert.Equal(t, columns[1], "name")
+	assert.Equal(t, columns[2], "bio")
+	assert.Equal(t, columns[3], "email")
+	assert.Equal(t, columns[4], "modified_col")
+}
+
+func TestReadingTableColumnsFromPointer(t *testing.T) {
+	columns, err := crud.ReadTableColumns(&UserProfile{})
+
+	assert.Nil(t, err)
+	assert.Equal(t, columns[0], "id")
+	assert.Equal(t, columns[1], "name")
+	assert.Equal(t, columns[2], "bio")
+	assert.Equal(t, columns[3], "email")
+	assert.Equal(t, columns[4], "modified_col")
+}
+
+func TestReadingTableColumnsFromList(t *testing.T) {
+	list := []*UserProfile{}
+
+	columns, err := crud.ReadTableColumns(&list)
+
+	assert.Nil(t, err)
+	assert.Equal(t, columns[0], "id")
+	assert.Equal(t, columns[1], "name")
+	assert.Equal(t, columns[2], "bio")
+	assert.Equal(t, columns[3], "email")
+	assert.Equal(t, columns[4], "modified_col")
+}
+
+func TestMixed(t *testing.T) {
+	table, err := crud.NewTable(Mixed{})
+	assert.Nil(t, err)
+	assert.Equal(t, table.Name, "Mixed")
+	assert.Equal(t, table.SQLName, "__mixed__")
 }
